@@ -31,7 +31,7 @@ jobs:
         run: |
           git clone https://huggingface.co/spaces/Tanny1412/youtubetranscriber
           rsync -av --exclude='.git' . youtubetranscriber/
-          cd your-space-name
+          cd youtubetranscriber
           git add .
           git commit -m "Sync from GitHub $(date)"
           git push
