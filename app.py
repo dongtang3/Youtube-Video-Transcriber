@@ -68,3 +68,5 @@ if st.button("Get Detailed Notes"):
         summary = generate_huggingface_summary(transcript_text, prompt)
         st.markdown("## Detailed Notes")
         st.write(summary)
+
+        #
