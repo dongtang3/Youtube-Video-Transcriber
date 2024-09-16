@@ -30,7 +30,7 @@ jobs:
       - name: Push to Hugging Face Space
         run: |
           git clone https://huggingface.co/spaces/Tanny1412/youtubetranscriber
-          rsync -av --exclude='.git' . yyoutubetranscriber/
+          rsync -av --exclude='.git' . youtubetranscriber/
           cd your-space-name
           git add .
           git commit -m "Sync from GitHub $(date)"
