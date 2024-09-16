@@ -1,0 +1,37 @@
+name: Sync to Hugging Face Spaces
+
+on:
+  push:
+    branches:
+      - main  # Replace with the branch you want to track, e.g., 'master' or any other branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install Git LFS (Large File Support) if necessary
+        run: |
+          sudo apt-get update
+          sudo apt-get install git-lfs
+          git lfs install
+
+      - name: Hugging Face CLI login
+        run: huggingface-cli login --token ${{ secrets.HF_TOKEN }}
+
+      - name: Push to Hugging Face Space
+        run: |
+          git clone https://huggingface.co/spaces/Tanny1412/youtubetranscriber
+          rsync -av --exclude='.git' . yyoutubetranscriber/
+          cd your-space-name
+          git add .
+          git commit -m "Sync from GitHub $(date)"
+          git push
