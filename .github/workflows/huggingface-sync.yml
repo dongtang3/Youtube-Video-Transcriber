@@ -3,7 +3,7 @@ name: Sync to Hugging Face Spaces
 on:
   push:
     branches:
-      - main  # Replace with the branch you want to track, e.g., 'master' or any other branch
+      - main  # You can specify the branch to track
 
 jobs:
   deploy:
@@ -23,6 +23,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install git-lfs
           git lfs install
+
+      - name: Install Hugging Face CLI
+        run: |
+          pip install huggingface_hub
 
       - name: Hugging Face CLI login
         run: huggingface-cli login --token ${{ secrets.HF_TOKEN }}
