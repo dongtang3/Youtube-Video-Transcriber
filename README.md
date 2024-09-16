@@ -1,3 +1,12 @@
-![ss1](https://github.com/user-attachments/assets/af247cb6-ab4c-43e6-b37c-db095ed6a13a)
-![Screenshot 2024-09-12 110751](https://github.com/user-attachments/assets/9dff3b62-8e04-4a75-91ee-7d5d18da9863)
+---
+title: "My Summarizer App"
+emoji: "📝"
+colorFrom: "purple"
+colorTo: "blue"
+sdk: "streamlit"  # or gradio, depending on the framework
+sdk_version: "1.38.0"  # Specify a compatible version of Streamlit
+app_file: "app.py"  # The main file to run the app (e.g., app.py or streamlit_app.py)
+pinned: false
+---
 
+This app allows you to summarize long texts using a powerful summarization model hosted on Hugging Face Spaces.
