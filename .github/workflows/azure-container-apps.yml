@@ -1,0 +1,52 @@
+name: Deploy to Azure Container Apps
+
+on:
+  push:
+    branches:
+      - main  # Change to your desired branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Log in to Azure
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Step 4: Deploy to Azure Container Apps
+      - name: Deploy to Azure Container Apps
+        uses: azure/cli@v1
+        with:
+          inlineScript: |
+            # Variables (replace placeholders with your actual values)
+            RESOURCE_GROUP=appsvc_linux_centralus
+            CONTAINER_APPS_ENV=managedEnvironment-appsvclinuxcent-988a
+            CONTAINER_APP_NAME=mlyoutube
+            IMAGE=elitang/youtube:latest
+            LOCATION=centralus  # e.g., centralus
+
+            # Check if the resource group exists; create if it doesn't
+            if ! az group show --name $RESOURCE_GROUP > /dev/null 2>&1; then
+              echo "Resource group does not exist. Creating..."
+              az group create --name $RESOURCE_GROUP --location $LOCATION
+            fi
+
+            # Check if the Container Apps environment exists; create if it doesn't
+            if ! az containerapp env show --name $CONTAINER_APPS_ENV --resource-group $RESOURCE_GROUP > /dev/null 2>&1; then
+              echo "Container Apps environment does not exist. Creating..."
+              az containerapp env create --name $CONTAINER_APPS_ENV --resource-group $RESOURCE_GROUP --location $LOCATION
+            fi
+
+            # Deploy or update the container app
+            az containerapp update \
+              --name $CONTAINER_APP_NAME \
+              --resource-group $RESOURCE_GROUP \
+              --image $IMAGE \
+              --environment $CONTAINER_APPS_ENV

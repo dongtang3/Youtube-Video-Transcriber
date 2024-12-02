@@ -1,6 +1,5 @@
+gradio
 youtube_transcript_api
-streamlit
-google-generativeai
-python-dotenv
-pathlib
-huggingface_hub
+prometheus_client
+transformers
+torch

@@ -3,3 +3,4 @@
 
 # Ignore the transcribe folder
 transcribe/
+/.idea/
