@@ -30,7 +30,7 @@ jobs:
             CONTAINER_APPS_ENV=managedEnvironment-appsvclinuxcent-988a
             CONTAINER_APP_NAME=mlyoutube
             IMAGE=elitang/youtube:latest
-            LOCATION=centralus  # e.g., centralus
+            LOCATION=East US  
 
             # Check if the resource group exists; create if it doesn't
             if ! az group show --name $RESOURCE_GROUP > /dev/null 2>&1; then
