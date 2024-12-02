@@ -3,43 +3,92 @@ name: Deploy to Azure Container Apps
 on:
   push:
     branches:
-      - main
+      - main  # Change to your desired branch
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Step 2: Log in to Azure
       - name: Log in to Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy to Azure Container Apps
-        uses: azure/cli@v1
+
+
+        # Step 3: Install Azure CLI Extensions
+      - name: Install Azure CLI Extensions
+        uses: azure/CLI@v2
         with:
+          azcliversion: 'latest'
           inlineScript: |
-            RESOURCE_GROUP=appsvc_linux_centralus
-            CONTAINER_APPS_ENV=managedEnvironment-appsvclinuxcent-988a
-            CONTAINER_APP_NAME=mlyoutube
-            IMAGE=elitang/youtube:latest
-            LOCATION='"East US"'
+            # Install or update the containerapp extension
+            if ! az extension show --name containerapp > /dev/null 2>&1; then
+              echo "Installing containerapp extension..."
+              az extension add --name containerapp
+            else
+              echo "Updating containerapp extension..."
+              az extension update --name containerapp
+            fi
 
-            if ! az group show --name $RESOURCE_GROUP > /dev/null 2>&1; then
+        # Step 4: Deploy to Azure Container Apps
+      - name: Deploy to Azure Container Apps
+        uses: azure/CLI@v2
+        with:
+          azcliversion: 'latest'
+          inlineScript: |
+            #!/bin/bash
+
+            set -e
+            set -o pipefail
+
+            echo "Azure CLI Version:"
+            az --version
+
+            # Variables (replace placeholders with your actual values)
+            RESOURCE_GROUP="appsvc_linux_centralus"
+            CONTAINER_APPS_ENV="managedEnvironment-appsvclinuxcent-988a"  
+            CONTAINER_APP_NAME="mlyoutube"                  
+            IMAGE="elitang/youtube:latest"
+            LOCATION="eastus" 
+
+            echo "Checking if resource group '$RESOURCE_GROUP' exists..."
+            if ! az group show --name "$RESOURCE_GROUP" > /dev/null 2>&1; then
               echo "Resource group does not exist. Creating..."
-              az group create --name $RESOURCE_GROUP --location $LOCATION
+              az group create --name "$RESOURCE_GROUP" --location "$LOCATION"
+            else
+              echo "Resource group exists."
             fi
 
-            if ! az containerapp env show --name $CONTAINER_APPS_ENV --resource-group $RESOURCE_GROUP > /dev/null 2>&1; then
+            echo "Checking if Container Apps environment '$CONTAINER_APPS_ENV' exists..."
+            if ! az containerapp env show --name "$CONTAINER_APPS_ENV" --resource-group "$RESOURCE_GROUP" > /dev/null 2>&1; then
               echo "Container Apps environment does not exist. Creating..."
-              az containerapp env create --name $CONTAINER_APPS_ENV --resource-group $RESOURCE_GROUP --location $LOCATION
+              az containerapp env create --name "$CONTAINER_APPS_ENV" --resource-group "$RESOURCE_GROUP" --location "$LOCATION"
+            else
+              echo "Container Apps environment exists."
             fi
 
-            az containerapp update \
-              --name $CONTAINER_APP_NAME \
-              --resource-group $RESOURCE_GROUP \
-              --image $IMAGE \
-              --environment-name $CONTAINER_APPS_ENV
+            echo "Deploying or updating the Container App '$CONTAINER_APP_NAME' with image '$IMAGE'..."
+            if ! az containerapp show --name "$CONTAINER_APP_NAME" --resource-group "$RESOURCE_GROUP" > /dev/null 2>&1; then
+              echo "Container App does not exist. Creating..."
+              az containerapp create \
+                --name "$CONTAINER_APP_NAME" \
+                --resource-group "$RESOURCE_GROUP" \
+                --environment "$CONTAINER_APPS_ENV" \
+                --image "$IMAGE" \
+                --location "$LOCATION"
+            else
+              echo "Container App exists. Updating..."
+              az containerapp update \
+                --name "$CONTAINER_APP_NAME" \
+                --resource-group "$RESOURCE_GROUP" \
+                --image "$IMAGE"
+            fi
+
+            echo "Deployment completed successfully."
